@@ -30,19 +30,16 @@
 //
 // ******************************************************************************************************************************
 
-using System.Linq;
+namespace System;
 
-namespace System
+public static class IntegerExtensions
 {
-    public static class IntegerExtensions
-    {
-        public static bool In(this int value, params int[] list) => list.Safe().Any(n => n == value);
+    public static bool In(this int value, params int[] list) => list.Safe().Any(n => n == value);
 
-        public static byte[] ToBytes(this int value) {
-            var bytes = BitConverter.GetBytes(value);
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(bytes);
-            return bytes;
-        }
+    public static byte[] ToBytes(this int value) {
+        var bytes = BitConverter.GetBytes(value);
+        if (BitConverter.IsLittleEndian)
+            Array.Reverse(bytes);
+        return bytes;
     }
 }

@@ -30,22 +30,16 @@
 //
 // ******************************************************************************************************************************
 
-#nullable enable
+namespace System.Security.Cryptography.X509Certificates;
 
-using System;
-using System.Linq;
-
-namespace System.Security.Cryptography.X509Certificates
+public static class X509Certificate2Extensions
 {
-    public static class X509Certificate2Extensions
-    {
-        public static string FullName(this X509Certificate2 certificate)
-            => certificate.Required(nameof(certificate)).SubjectName.Format(false);
+    public static string FullName(this X509Certificate2 certificate)
+        => certificate.Required(nameof(certificate)).SubjectName.Format(false);
 
-        public static string SimpleName(this X509Certificate2 certificate)
-            => certificate.Required(nameof(certificate)).FriendlyName.WithDefault(certificate.DottedName());
+    public static string SimpleName(this X509Certificate2 certificate)
+        => certificate.Required(nameof(certificate)).FriendlyName.WithDefault(certificate.DottedName());
 
-        private static string DottedName(this X509Certificate2 certificate)
-            => certificate.Required(nameof(certificate)).SubjectName.Name.Split(',').Select(part => part.Split('=').Last()).Reverse().JoinedBy(".");
-    }
+    private static string DottedName(this X509Certificate2 certificate)
+        => certificate.Required(nameof(certificate)).SubjectName.Name.Split(',').Select(part => part.Split('=').Last()).Reverse().JoinedBy(".");
 }

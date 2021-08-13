@@ -30,9 +30,6 @@
 //
 // ******************************************************************************************************************************
 
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace System.IO
 {
     public class StreamSpan : Stream
@@ -77,7 +74,7 @@ namespace System.IO
             }
         }
 
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state) => throw new NotSupportedException(_isReadonly);
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state) => throw new NotSupportedException(_isReadonly);
 
         public override void EndWrite(IAsyncResult asyncResult) => throw new NotSupportedException(_isReadonly);
 

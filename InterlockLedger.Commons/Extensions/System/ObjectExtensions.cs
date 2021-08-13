@@ -30,43 +30,34 @@
 //
 // ******************************************************************************************************************************
 
-#nullable enable
+namespace System;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace System
+public static class ObjectExtensions
 {
-    public static class ObjectExtensions
-    {
-        public static IEnumerable<T> AsSingle<T>(this T s) => new SingleEnumerable<T>(s);
+    public static IEnumerable<T?> AsSingle<T>(this T s) => new SingleEnumerable<T>(s);
 
-        public static List<T> AsSingleList<T>(this T s) => s.AsSingle().ToList();
+    public static List<T?> AsSingleList<T>(this T s) => s.AsSingle().ToList();
 
-        public static async Task<TO?> IfNotNullAsync<T, TO>(this T? value, Func<T, Task<TO?>> transformAsync) where T : class where TO : class
-            => transformAsync is null
-                ? throw new ArgumentNullException(nameof(transformAsync))
-                : value is null ? null : await transformAsync(value).ConfigureAwait(false);
+    public static async Task<TO?> IfNotNullAsync<T, TO>(this T? value, Func<T, Task<TO?>> transformAsync) where T : class where TO : class
+        => transformAsync is null
+            ? throw new ArgumentNullException(nameof(transformAsync))
+            : value is null ? null : await transformAsync(value).ConfigureAwait(false);
 
-        public static bool In<T>(this T value, params T[] set) => set?.Contains(value) ?? false;
+    public static bool In<T>(this T value, params T[] set) => set?.Contains(value) ?? false;
 
-        public static bool In<T>(this T value, IEnumerable<T> set) => set?.Contains(value) ?? false;
+    public static bool In<T>(this T value, IEnumerable<T> set) => set?.Contains(value) ?? false;
 
-        public static bool IsDefault<T>(this T value) => value is null || value.Equals(default(T));
+    public static bool IsDefault<T>(this T value) => value is null || value.Equals(default(T));
 
-        public static string? PadLeft(this object? value, int totalWidth) => value?.ToString()?.PadLeft(totalWidth);
+    public static string? PadLeft(this object? value, int totalWidth) => value?.ToString()?.PadLeft(totalWidth);
 
-        public static string? PadRight(this object? value, int totalWidth) => value?.ToString()?.PadRight(totalWidth);
+    public static string? PadRight(this object? value, int totalWidth) => value?.ToString()?.PadRight(totalWidth);
 
-        public static T Required<T>([NotNull] this T? value, string name) where T : class
-            => value ?? throw new ArgumentException("Required", name);
+    public static T Required<T>([NotNull] this T? value, string name) where T : class
+        => value ?? throw new ArgumentException("Required", name);
 
-        public static string TypeOrNull(this object? value) => value is null ? "null" : value.GetType().Name;
+    public static string TypeOrNull(this object? value) => value is null ? "null" : value.GetType().Name;
 
-        public static string WithDefault(this object? value, string @default)
-            => StringExtensions.WithDefault(value?.ToString(), @default);
-    }
+    public static string WithDefault(this object? value, string @default)
+        => StringExtensions.WithDefault(value?.ToString(), @default);
 }

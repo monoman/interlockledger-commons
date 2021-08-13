@@ -30,15 +30,14 @@
 //
 // ******************************************************************************************************************************
 
-namespace System
+namespace System;
+
+public static class LongExtensions
 {
-    public static class LongExtensions
-    {
-        public static byte[] ToBytes(this long value) {
-            var bytes = BitConverter.GetBytes(value);
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(bytes);
-            return bytes;
-        }
+    public static byte[] ToBytes(this long value) {
+        var bytes = BitConverter.GetBytes(value);
+        if (BitConverter.IsLittleEndian)
+            Array.Reverse(bytes);
+        return bytes;
     }
 }

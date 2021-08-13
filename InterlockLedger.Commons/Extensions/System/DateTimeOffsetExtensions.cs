@@ -30,15 +30,14 @@
 //
 // ******************************************************************************************************************************
 
-namespace System
+namespace System;
+
+public static class DateTimeOffsetExtensions
 {
-    public static class DateTimeOffsetExtensions
-    {
-        public static readonly DateTimeOffset TimeZero = new(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    public static readonly DateTimeOffset TimeZero = new(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
-        public static ulong AsMilliseconds(this DateTimeOffset value) => (ulong)Validated((value - TimeZero).TotalMilliseconds, value);
+    public static ulong AsMilliseconds(this DateTimeOffset value) => (ulong)Validated((value - TimeZero).TotalMilliseconds, value);
 
-        private static double Validated(double totalMilliseconds, DateTimeOffset value)
-            => (totalMilliseconds >= 0) ? totalMilliseconds : throw new ArgumentOutOfRangeException($"Date is too old: {value}");
-    }
+    private static double Validated(double totalMilliseconds, DateTimeOffset value)
+        => (totalMilliseconds >= 0) ? totalMilliseconds : throw new ArgumentOutOfRangeException($"Date is too old: {value}");
 }

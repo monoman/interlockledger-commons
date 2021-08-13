@@ -30,13 +30,27 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Collections.Generic
+namespace System.Collections.Generic;
+
+public static class ListExtensions
 {
-    public static class ListExtensions
-    {
-        public static List<T> SafeAdd<T>(this List<T> list, params T[] itens) {
-            list?.AddRange(itens);
-            return list;
-        }
+    public static List<T>? SafeAdd<T>(this List<T>? list, params T[] itens) {
+        list?.AddRange(itens);
+        return list;
+    }
+    public static List<T>? SafeAdd<T>(this List<T>? list, T item) {
+        list?.Add(item);
+        return list;
+    }
+    public static List<T>? SafeAdd<T>(this List<T>? list, T item1, T item2) {
+        list?.Add(item1);
+        list?.Add(item2);
+        return list;
+    }
+    public static List<T>? SafeAdd<T>(this List<T>? list, T item1, T item2, T item3) {
+        list?.Add(item1);
+        list?.Add(item2);
+        list?.Add(item3);
+        return list;
     }
 }

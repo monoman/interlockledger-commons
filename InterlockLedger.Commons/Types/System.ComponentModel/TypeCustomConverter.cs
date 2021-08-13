@@ -31,36 +31,34 @@
 // ******************************************************************************************************************************
 
 using System.ComponentModel.Design.Serialization;
-using System.Globalization;
 
-namespace System.ComponentModel
+namespace System.ComponentModel;
+
+public class TypeCustomConverter<T> : TypeConverter where T : ITextual<T>
 {
-    public class TypeCustomConverter<T> : TypeConverter where T : ITextual<T>
-    {
-        public TypeCustomConverter() {
-            if (_service is null) {
-                var ctor = typeof(T).GetConstructor(new Type[] { typeof(string) });
-                _service = (s) => (T)ctor.Invoke(new object[] { s });
-            }
+    public TypeCustomConverter() {
+        if (_service is null) {
+            var ctorInfo = typeof(T).GetConstructor(new Type[] { typeof(string) });
+            _service = (s) => (T)ctorInfo.Required(nameof(ctorInfo)).Invoke(new object[] { s });
         }
-
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) => sourceType == typeof(string);
-
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-            => destinationType == typeof(InstanceDescriptor) || destinationType == typeof(string);
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-            => value is string text ? _service(text) : base.ConvertFrom(context, culture, value);
-
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-            => destinationType is null
-                ? throw new ArgumentNullException(nameof(destinationType))
-                : value is null
-                    ? throw new ArgumentNullException(nameof(value))
-                    : destinationType != typeof(string) || value is not T type
-                        ? throw new InvalidOperationException($"Can only convert {typeof(T).Name} to string!!!")
-                        : type.TextualRepresentation;
-
-        private static Func<string, T> _service;
     }
+
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) => sourceType == typeof(string);
+
+    public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType)
+        => destinationType == typeof(InstanceDescriptor) || destinationType == typeof(string);
+
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
+        => value is string text ? _service!(text) : base.ConvertFrom(context, culture, value);
+
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
+        => destinationType is null
+            ? throw new ArgumentNullException(nameof(destinationType))
+            : value is null
+                ? throw new ArgumentNullException(nameof(value))
+                : destinationType != typeof(string) || value is not T type
+                    ? throw new InvalidOperationException($"Can only convert {typeof(T).Name} to string!!!")
+                    : type.TextualRepresentation;
+
+    private static Func<string, T>? _service;
 }

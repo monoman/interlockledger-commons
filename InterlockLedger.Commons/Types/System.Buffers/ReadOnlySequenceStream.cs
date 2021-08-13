@@ -30,8 +30,6 @@
 //
 // ******************************************************************************************************************************
 
-using System.IO;
-
 namespace System.Buffers
 {
     public class ReadOnlySequenceStream : Stream

@@ -30,27 +30,29 @@
 //
 // ******************************************************************************************************************************
 
-using System.Globalization;
+global using System.Diagnostics.CodeAnalysis;
+global using System.Globalization;
+global using System.Text;
+global using System.Text.RegularExpressions;
 
-namespace System.Collections.Generic
+namespace System.Collections.Generic;
+
+public static class DictionaryExtensions
 {
-    public static class DictionaryExtensions
-    {
-        public static readonly StringComparer CaseIgnoringComparer = StringComparer.Create(CultureInfo.InvariantCulture, true);
+    public static readonly StringComparer CaseIgnoringComparer = StringComparer.Create(CultureInfo.InvariantCulture, true);
 
-        public static Dictionary<string, T> AddIf<T>(this Dictionary<string, T> dictionary, bool add, string key, T value) {
-            if (add)
-                dictionary?.Add(key, value);
-            return dictionary;
-        }
-
-        public static Dictionary<string, T> AddIf<T>(this Dictionary<string, T> dictionary, Func<bool> shouldAdd, string key, T value) {
-            if (shouldAdd.Required(nameof(shouldAdd))())
-                dictionary?.Add(key, value);
-            return dictionary;
-        }
-
-        public static Dictionary<string, T> CaseIgnoring<T>(this Dictionary<string, T> dictionary)
-            => new(dictionary, CaseIgnoringComparer);
+    public static Dictionary<string, T>? AddIf<T>(this Dictionary<string, T>? dictionary, bool add, string key, T value) {
+        if (add)
+            dictionary?.Add(key, value);
+        return dictionary;
     }
+
+    public static Dictionary<string, T>? AddIf<T>(this Dictionary<string, T>? dictionary, Func<bool> shouldAdd, string key, T value) {
+        if (shouldAdd.Required(nameof(shouldAdd))())
+            dictionary?.Add(key, value);
+        return dictionary;
+    }
+
+    public static Dictionary<string, T> CaseIgnoring<T>(this Dictionary<string, T> dictionary)
+        => new(dictionary, CaseIgnoringComparer);
 }

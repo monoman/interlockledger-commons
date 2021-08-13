@@ -30,35 +30,33 @@
 //
 // ******************************************************************************************************************************
 
-using System.Linq;
 using NUnit.Framework;
 
-namespace System.Collections.Generic.Tests
+namespace System.Collections.Generic.Tests;
+
+[TestFixture]
+public class SingleEnumerableTests
 {
-    [TestFixture]
-    public class SingleEnumerableTests
-    {
-        [Test]
-        public void SingleEnumerableTest() {
-            var single = new SingleEnumerable<int>(42);
-            Assert.NotNull(single);
-            Assert.AreEqual(42, single.First());
-            Assert.AreEqual(42, single.Last());
-            Assert.AreEqual(1, single.Count());
-            var enumerator = single.GetEnumerator();
-            Assert.NotNull(enumerator);
-            Assert.IsInstanceOf<IEnumerator<int>>(enumerator);
-            Assert.AreEqual(0, enumerator.Current);
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreEqual(42, enumerator.Current);
-            Assert.IsFalse(enumerator.MoveNext());
-            Assert.AreEqual(0, enumerator.Current);
-            enumerator.Reset();
-            Assert.AreEqual(0, enumerator.Current);
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreEqual(42, enumerator.Current);
-            Assert.IsFalse(enumerator.MoveNext());
-            Assert.AreEqual(0, enumerator.Current);
-        }
+    [Test]
+    public void SingleEnumerableTest() {
+        var single = new SingleEnumerable<int>(42);
+        Assert.NotNull(single);
+        Assert.AreEqual(42, single.First());
+        Assert.AreEqual(42, single.Last());
+        Assert.AreEqual(1, single.Count());
+        var enumerator = single.GetEnumerator();
+        Assert.NotNull(enumerator);
+        Assert.IsInstanceOf<IEnumerator<int>>(enumerator);
+        Assert.AreEqual(0, enumerator.Current);
+        Assert.IsTrue(enumerator.MoveNext());
+        Assert.AreEqual(42, enumerator.Current);
+        Assert.IsFalse(enumerator.MoveNext());
+        Assert.AreEqual(0, enumerator.Current);
+        enumerator.Reset();
+        Assert.AreEqual(0, enumerator.Current);
+        Assert.IsTrue(enumerator.MoveNext());
+        Assert.AreEqual(42, enumerator.Current);
+        Assert.IsFalse(enumerator.MoveNext());
+        Assert.AreEqual(0, enumerator.Current);
     }
 }

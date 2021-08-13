@@ -30,68 +30,65 @@
 //
 // ******************************************************************************************************************************
 
-using System.Collections.Generic;
+namespace System.Threading.Tasks;
 
-namespace System.Threading.Tasks
+public class AsyncLock
 {
-    public class AsyncLock
+    public AsyncLock() {
+        _semaphore = new AsyncSemaphore();
+        _releaser = Task.FromResult((IDisposable)new Releaser(this));
+    }
+
+    public Task<IDisposable> LockAsync() {
+        var wait = _semaphore.WaitAsync();
+        return
+            wait.IsCompleted ?
+                _releaser :
+                wait.ContinueWith((_, state) => (IDisposable)new Releaser((AsyncLock)state!),
+                                  state: this,
+                                  CancellationToken.None,
+                                  TaskContinuationOptions.ExecuteSynchronously,
+                                  TaskScheduler.Default);
+    }
+
+    private readonly Task<IDisposable> _releaser;
+    private readonly AsyncSemaphore _semaphore;
+
+    private struct Releaser : IDisposable
     {
-        public AsyncLock() {
-            _semaphore = new AsyncSemaphore();
-            _releaser = Task.FromResult((IDisposable)new Releaser(this));
+        public void Dispose() => _asyncLocktoRelease?._semaphore.Release();
+
+        internal Releaser(AsyncLock? toRelease) => _asyncLocktoRelease = toRelease.Required(nameof(toRelease));
+
+        private readonly AsyncLock _asyncLocktoRelease;
+    }
+
+    private class AsyncSemaphore
+    {
+        public AsyncSemaphore() => _currentCount = 1;
+
+        public void Release() {
+            TaskCompletionSource<bool>? tcs = null;
+            lock (_waiters) if (_waiters.Count > 0)
+                    tcs = _waiters.Dequeue();
+                else
+                    _currentCount++;
+            tcs?.SetResult(true);
         }
 
-        public Task<IDisposable> LockAsync() {
-            var wait = _semaphore.WaitAsync();
-            return
-                wait.IsCompleted ?
-                    _releaser :
-                    wait.ContinueWith((_, state) => (IDisposable)new Releaser((AsyncLock)state),
-                                      state: this,
-                                      CancellationToken.None,
-                                      TaskContinuationOptions.ExecuteSynchronously,
-                                      TaskScheduler.Default);
+        public Task WaitAsync() {
+            lock (_waiters) if (_currentCount > 0) {
+                    _currentCount--;
+                    return _completed;
+                } else {
+                    var waiter = new TaskCompletionSource<bool>();
+                    _waiters.Enqueue(waiter);
+                    return waiter.Task;
+                }
         }
 
-        private readonly Task<IDisposable> _releaser;
-        private readonly AsyncSemaphore _semaphore;
-
-        private struct Releaser : IDisposable
-        {
-            public void Dispose() => _asyncLocktoRelease?._semaphore.Release();
-
-            internal Releaser(AsyncLock toRelease) => _asyncLocktoRelease = toRelease.Required(nameof(toRelease));
-
-            private readonly AsyncLock _asyncLocktoRelease;
-        }
-
-        private class AsyncSemaphore
-        {
-            public AsyncSemaphore() => _currentCount = 1;
-
-            public void Release() {
-                TaskCompletionSource<bool> tcs = null;
-                lock (_waiters) if (_waiters.Count > 0)
-                        tcs = _waiters.Dequeue();
-                    else
-                        _currentCount++;
-                tcs?.SetResult(true);
-            }
-
-            public Task WaitAsync() {
-                lock (_waiters) if (_currentCount > 0) {
-                        _currentCount--;
-                        return _completed;
-                    } else {
-                        var waiter = new TaskCompletionSource<bool>();
-                        _waiters.Enqueue(waiter);
-                        return waiter.Task;
-                    }
-            }
-
-            private static readonly Task _completed = Task.FromResult(true);
-            private readonly Queue<TaskCompletionSource<bool>> _waiters = new();
-            private int _currentCount;
-        }
+        private static readonly Task _completed = Task.FromResult(true);
+        private readonly Queue<TaskCompletionSource<bool>> _waiters = new();
+        private int _currentCount;
     }
 }

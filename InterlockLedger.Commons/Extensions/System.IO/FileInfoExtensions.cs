@@ -30,27 +30,27 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.IO
+namespace System.IO;
+
+public static class FileInfoExtensions
 {
-    public static class FileInfoExtensions
+    public static FileStream GetWritingStream(this FileInfo fileInfo, Action<FileInfo> use) => new FbbaInputStream(fileInfo, use);
+
+    private class FbbaInputStream : FileStream
     {
-        public static FileStream GetWritingStream(this FileInfo fileInfo, Action<FileInfo> use) => new FbbaInputStream(fileInfo, use);
-
-        private class FbbaInputStream : FileStream
-        {
-            public FbbaInputStream(FileInfo fileInfo, Action<FileInfo> use) : base(fileInfo?.FullName, FileMode.CreateNew, FileAccess.Write) {
-                _fileInfo = fileInfo.Required(nameof(fileInfo));
-                _use = use.Required(nameof(use));
-            }
-
-            protected override void Dispose(bool disposing) {
-                base.Dispose(disposing);
-                if (disposing)
-                    _use(_fileInfo);
-            }
-
-            private readonly FileInfo _fileInfo;
-            private readonly Action<FileInfo> _use;
+        public FbbaInputStream(FileInfo? fileInfo, Action<FileInfo> use)
+            : base(fileInfo.Required(nameof(fileInfo)).FullName, FileMode.CreateNew, FileAccess.Write) {
+            _fileInfo = fileInfo;
+            _use = use.Required(nameof(use));
         }
+
+        protected override void Dispose(bool disposing) {
+            base.Dispose(disposing);
+            if (disposing)
+                _use(_fileInfo);
+        }
+
+        private readonly FileInfo _fileInfo;
+        private readonly Action<FileInfo> _use;
     }
 }

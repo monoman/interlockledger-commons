@@ -30,8 +30,6 @@
 //
 // ******************************************************************************************************************************
 
-using System.Collections.Generic;
-
 namespace System.Linq
 {
     public static class IEnumerableOfStringExtensions

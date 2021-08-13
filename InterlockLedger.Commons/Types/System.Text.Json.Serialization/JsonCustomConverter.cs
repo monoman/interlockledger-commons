@@ -30,30 +30,29 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Text.Json.Serialization
+namespace System.Text.Json.Serialization;
+
+public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
 {
-    public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
-    {
-        public JsonCustomConverter() {
-            if (_service is null) {
-                var ctor = typeof(T).GetConstructor(new Type[] { typeof(string) });
-                _service = (s) => (T)ctor.Invoke(new object[] { s });
-            }
+    public JsonCustomConverter() {
+        if (_service is null) {
+            var ctorInfo = typeof(T).GetConstructor(new Type[] { typeof(string) });
+            _service = (s) => (T)ctorInfo.Required(nameof(ctorInfo)).Invoke(new object[] { s! });
         }
-
-        public override bool CanConvert(Type typeToConvert)
-            => typeToConvert.Required(nameof(typeToConvert)) == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
-
-        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.TokenType == JsonTokenType.String
-                ? _service(reader.GetString())
-                : throw new NotSupportedException();
-
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) {
-            writer.Required(nameof(writer));
-            writer.WriteStringValue(value.TextualRepresentation);
-        }
-
-        private static Func<object, T> _service;
     }
+
+    public override bool CanConvert(Type typeToConvert)
+        => typeToConvert.Required(nameof(typeToConvert)) == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
+
+    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        => reader.TokenType == JsonTokenType.String
+            ? _service!(reader.GetString())
+            : throw new NotSupportedException();
+
+    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) {
+        writer.Required(nameof(writer));
+        writer.WriteStringValue(value.TextualRepresentation);
+    }
+
+    private static Func<string?, T>? _service;
 }

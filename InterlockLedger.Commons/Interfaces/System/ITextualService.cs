@@ -30,48 +30,43 @@
 //
 // ******************************************************************************************************************************
 
-#nullable enable
+namespace System;
 
-using System.Text.RegularExpressions;
-
-namespace System
+public interface ITextualService<T>
 {
-    public interface ITextualService<T>
+    public enum Resolution
     {
-        public enum Resolution
-        {
-            Empty,
-            Valid,
-            Invalid
-        }
-
-        T Empty { get; }
-        T Invalid { get; }
-        Regex Mask { get; }
-
-        T Build(string textualRepresentation);
-
-        string MessageForMissing { get; }
-
-        Resolution IsValidTextual(string? textualRepresentation)
-            => textualRepresentation.IsBlank()
-                ? Resolution.Empty
-                : Mask.IsMatch(textualRepresentation)
-                    ? Resolution.Valid
-                    : Resolution.Invalid;
-
-        string MessageForInvalid(string? textualRepresentation);
-
-        T Resolve(string textualRepresentation) => IsValidTextual(textualRepresentation) switch {
-            Resolution.Empty => Empty,
-            Resolution.Valid => Build(textualRepresentation),
-            _ => Invalid
-        };
-
-        string? Validate(string? textualRepresentation) => IsValidTextual(textualRepresentation) switch {
-            Resolution.Valid => null,
-            Resolution.Empty => MessageForMissing,
-            _ => MessageForInvalid(textualRepresentation)
-        };
+        Empty,
+        Valid,
+        Invalid
     }
+
+    T Empty { get; }
+    T Invalid { get; }
+    Regex Mask { get; }
+
+    T Build(string textualRepresentation);
+
+    string MessageForMissing { get; }
+
+    Resolution IsValidTextual(string? textualRepresentation)
+        => textualRepresentation.IsBlank()
+            ? Resolution.Empty
+            : Mask.IsMatch(textualRepresentation)
+                ? Resolution.Valid
+                : Resolution.Invalid;
+
+    string MessageForInvalid(string? textualRepresentation);
+
+    T Resolve(string textualRepresentation) => IsValidTextual(textualRepresentation) switch {
+        Resolution.Empty => Empty,
+        Resolution.Valid => Build(textualRepresentation),
+        _ => Invalid
+    };
+
+    string? Validate(string? textualRepresentation) => IsValidTextual(textualRepresentation) switch {
+        Resolution.Valid => null,
+        Resolution.Empty => MessageForMissing,
+        _ => MessageForInvalid(textualRepresentation)
+    };
 }

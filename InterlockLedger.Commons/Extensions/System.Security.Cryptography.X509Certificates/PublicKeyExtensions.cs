@@ -30,10 +30,9 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Security.Cryptography.X509Certificates
+namespace System.Security.Cryptography.X509Certificates;
+
+public static class PublicKeyExtensions
 {
-    public static class PublicKeyExtensions
-    {
-        public static byte[] ToBytes(this PublicKey publicKey) => publicKey?.EncodedKeyValue?.RawData;
-    }
+    public static byte[] ToBytes(this PublicKey publicKey) => publicKey?.EncodedKeyValue?.RawData ?? Array.Empty<byte>();
 }

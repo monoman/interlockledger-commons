@@ -32,71 +32,70 @@
 
 using NUnit.Framework;
 
-namespace System.IO
+namespace System.IO;
+
+public class StreamSpanTests
 {
-    public class StreamSpanTests
-    {
-        [Test]
-        public void TestSkippingToEndOfSpanOnDisposeWithoutSeek() {
-            using var baseStream = new NonSeekMemoryStream(new byte[100]);
-            TestSkippingOn(baseStream);
-        }
+    [Test]
+    public void TestSkippingToEndOfSpanOnDisposeWithoutSeek() {
+        using var baseStream = new NonSeekMemoryStream(new byte[100]);
+        TestSkippingOn(baseStream);
+    }
 
-        [Test]
-        public void TestSkippingToEndOfSpanOnDisposeWithSeek() {
-            using var baseStream = new MemoryStream(new byte[100]);
-            TestSkippingOn(baseStream);
-        }
+    [Test]
+    public void TestSkippingToEndOfSpanOnDisposeWithSeek() {
+        using var baseStream = new MemoryStream(new byte[100]);
+        TestSkippingOn(baseStream);
+    }
 
-        private static void TestSkippingOn(Stream baseStream) {
-            baseStream.Seek(10, SeekOrigin.Begin);
-            Assert.AreEqual(10L, baseStream.Position);
-            baseStream.WriteByte(30);
-            baseStream.Seek(10, SeekOrigin.Begin);
-            Assert.AreEqual(10L, baseStream.Position);
-            using (var sp = new StreamSpan(baseStream, (ulong)baseStream.ReadByte())) {
-                Assert.AreEqual(30L, sp.Length);
-                Assert.AreEqual(0L, sp.Position);
-                Assert.AreEqual(11L, baseStream.Position);
-                _ = sp.ReadBytes(20);
-                Assert.AreEqual(20L, sp.Position);
-                Assert.AreEqual(31L, baseStream.Position);
-                if (sp.CanSeek) {
-                    sp.Position = 30;
-                    Assert.AreEqual(41L, baseStream.Position);
-                    sp.Position = 5;
-                    Assert.AreEqual(16L, baseStream.Position);
-                    sp.Seek(30, SeekOrigin.Begin);
-                    Assert.AreEqual(41L, baseStream.Position);
-                    sp.Position = 5;
-                    Assert.AreEqual(16L, baseStream.Position);
-                    sp.Seek(0, SeekOrigin.End);
-                    Assert.AreEqual(41L, baseStream.Position);
-                    sp.Position = 5;
-                    Assert.AreEqual(16L, baseStream.Position);
-                    sp.Seek(25, SeekOrigin.Current);
-                    Assert.AreEqual(41L, baseStream.Position);
-                    sp.Position = 5;
-                    Assert.AreEqual(16L, baseStream.Position);
-                }
-            }
-            Assert.AreEqual(41L, baseStream.Position);
-            using (var sp2 = new StreamSpan(baseStream, (ulong)(baseStream.Length - baseStream.Position))) {
-                Assert.AreEqual(0L, sp2.Position);
+    private static void TestSkippingOn(Stream baseStream) {
+        baseStream.Seek(10, SeekOrigin.Begin);
+        Assert.AreEqual(10L, baseStream.Position);
+        baseStream.WriteByte(30);
+        baseStream.Seek(10, SeekOrigin.Begin);
+        Assert.AreEqual(10L, baseStream.Position);
+        using (var sp = new StreamSpan(baseStream, (ulong)baseStream.ReadByte())) {
+            Assert.AreEqual(30L, sp.Length);
+            Assert.AreEqual(0L, sp.Position);
+            Assert.AreEqual(11L, baseStream.Position);
+            _ = sp.ReadBytes(20);
+            Assert.AreEqual(20L, sp.Position);
+            Assert.AreEqual(31L, baseStream.Position);
+            if (sp.CanSeek) {
+                sp.Position = 30;
                 Assert.AreEqual(41L, baseStream.Position);
-                _ = sp2.ReadBytes(20);
-                Assert.AreEqual(20L, sp2.Position);
-                Assert.AreEqual(61L, baseStream.Position);
+                sp.Position = 5;
+                Assert.AreEqual(16L, baseStream.Position);
+                sp.Seek(30, SeekOrigin.Begin);
+                Assert.AreEqual(41L, baseStream.Position);
+                sp.Position = 5;
+                Assert.AreEqual(16L, baseStream.Position);
+                sp.Seek(0, SeekOrigin.End);
+                Assert.AreEqual(41L, baseStream.Position);
+                sp.Position = 5;
+                Assert.AreEqual(16L, baseStream.Position);
+                sp.Seek(25, SeekOrigin.Current);
+                Assert.AreEqual(41L, baseStream.Position);
+                sp.Position = 5;
+                Assert.AreEqual(16L, baseStream.Position);
             }
-            Assert.AreEqual(baseStream.Length, baseStream.Position);
+        }
+        Assert.AreEqual(41L, baseStream.Position);
+        using (var sp2 = new StreamSpan(baseStream, (ulong)(baseStream.Length - baseStream.Position))) {
+            Assert.AreEqual(0L, sp2.Position);
+            Assert.AreEqual(41L, baseStream.Position);
+            _ = sp2.ReadBytes(20);
+            Assert.AreEqual(20L, sp2.Position);
+            Assert.AreEqual(61L, baseStream.Position);
+        }
+        Assert.AreEqual(baseStream.Length, baseStream.Position);
+    }
+
+    private class NonSeekMemoryStream : MemoryStream
+    {
+        public NonSeekMemoryStream(byte[] buffer) : base(buffer, writable: true) {
         }
 
-        private class NonSeekMemoryStream : MemoryStream
-        {
-            public NonSeekMemoryStream(byte[] buffer) : base(buffer, writable: true) {
-            }
-
-            public override bool CanSeek => false;
-        }
+        public override bool CanSeek => false;
     }
 }

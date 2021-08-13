@@ -30,19 +30,16 @@
 //
 // ******************************************************************************************************************************
 
-#nullable enable
+namespace System;
 
-namespace System
+public interface ITextual
 {
-    public interface ITextual
-    {
-        bool IsEmpty { get; }
-        bool IsInvalid { get; }
-        string TextualRepresentation { get; }
-    }
+    bool IsEmpty { get; }
+    bool IsInvalid { get; }
+    string TextualRepresentation { get; }
+}
 
-    public interface ITextual<T> : ITextual
-    {
-        public static ITextualService<T>? TextualService { get; }
-    }
+public interface ITextual<T> : ITextual
+{
+    public static ITextualService<T>? TextualService { get; }
 }

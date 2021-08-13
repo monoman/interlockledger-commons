@@ -30,39 +30,35 @@
 //
 // ******************************************************************************************************************************
 
-using System.IO;
-using System.Linq;
+namespace System;
 
-namespace System
+public static class StringSuffixExtensions
 {
-    public static class StringSuffixExtensions
-    {
-        public static FileInfo TempFileInfo(this string suffix)
-            => new(Path.GetTempFileName().WithSuffixReplaced(suffix));
+    public static FileInfo TempFileInfo(this string suffix)
+        => new(Path.GetTempFileName().WithSuffixReplaced(suffix));
 
-        public static string WithSuffix(this string s, string suffix, char separator = '.')
-            => SuffixAdder(s, suffix, separator, AddMissingSuffix);
+    public static string WithSuffix(this string s, string suffix, char separator = '.')
+        => SuffixAdder(s, suffix, separator, AddMissingSuffix);
 
-        public static string WithSuffixReplaced(this string s, string suffix, char separator = '.')
-            => SuffixAdder(s, suffix, separator, ReplaceSuffix);
+    public static string WithSuffixReplaced(this string s, string suffix, char separator = '.')
+        => SuffixAdder(s, suffix, separator, ReplaceSuffix);
 
-        private static string AddMissingSuffix(string s, string suffix)
-            => s.EndsWith(suffix, StringComparison.OrdinalIgnoreCase) ? s : s + suffix;
+    private static string AddMissingSuffix(string s, string suffix)
+        => s.EndsWith(suffix, StringComparison.OrdinalIgnoreCase) ? s : s + suffix;
 
-        private static string ReplaceSuffix(string s, string suffix) {
-            int lastSeparatorPosition = s.LastIndexOf(suffix.First());
-            return (lastSeparatorPosition > 1 ? s.Substring(0, lastSeparatorPosition) : s) + suffix;
-        }
+    private static string ReplaceSuffix(string s, string suffix) {
+        int lastSeparatorPosition = s.LastIndexOf(suffix.First());
+        return (lastSeparatorPosition > 1 ? s.Substring(0, lastSeparatorPosition) : s) + suffix;
+    }
 
-        private static string SuffixAdder(string s, string suffix, char separator, Func<string, string, string> modifier) {
-            return s is null
-                ? null
-                : string.IsNullOrWhiteSpace(suffix)
-                    ? TrimSeparator(s, separator)
-                    : modifier(TrimSeparator(s, separator), NormalizeSuffix(suffix, separator));
-            static string NormalizeSuffix(string suffix, char separator)
-                => separator + suffix.Trim().TrimStart(separator);
-            static string TrimSeparator(string s, char separator) => s.Trim().TrimEnd(separator);
-        }
+    private static string SuffixAdder(string? s, string suffix, char separator, Func<string, string, string> modifier) {
+        return s is null
+            ? string.Empty
+            : string.IsNullOrWhiteSpace(suffix)
+                ? TrimSeparator(s, separator)
+                : modifier(TrimSeparator(s, separator), NormalizeSuffix(suffix, separator));
+        static string NormalizeSuffix(string suffix, char separator)
+            => separator + suffix.Trim().TrimStart(separator);
+        static string TrimSeparator(string s, char separator) => s.Trim().TrimEnd(separator);
     }
 }

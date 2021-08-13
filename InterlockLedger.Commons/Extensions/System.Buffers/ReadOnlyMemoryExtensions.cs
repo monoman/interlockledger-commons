@@ -30,8 +30,6 @@
 //
 // ******************************************************************************************************************************
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace System.Buffers
@@ -43,15 +41,15 @@ namespace System.Buffers
                 ? throw new InvalidOperationException("Buffer backed by array was expected")
                 : result;
 
-        public static ReadOnlySequence<byte> ToSequence(this IEnumerable<ReadOnlyMemory<byte>> segments)
+        public static ReadOnlySequence<byte> ToSequence(this IEnumerable<ReadOnlyMemory<byte>>? segments)
             => (segments?.Count() ?? 0) switch {
                 0 => ReadOnlySequence<byte>.Empty,
-                1 => new ReadOnlySequence<byte>(segments.First()),
-                _ => LinkedSegment.Link(segments)
+                1 => new ReadOnlySequence<byte>(segments!.First()),
+                _ => LinkedSegment.Link(segments!)
             };
 
         public static string ToUrlSafeBase64(this byte[] bytes)
-                            => Convert.ToBase64String(bytes ?? throw new ArgumentNullException(nameof(bytes)))
+            => Convert.ToBase64String(bytes ?? throw new ArgumentNullException(nameof(bytes)))
                .Trim('=')
                .Replace('+', '-')
                .Replace('/', '_');
